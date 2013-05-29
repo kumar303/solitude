@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import re
 
 ACCESS_DENIED = 'ACCESS_DENIED'
@@ -37,6 +38,7 @@ CURRENCIES = {
     'NOK': 'Norwegian Krone',
     'NZD': 'New Zealand Dollars',
     'PHP': 'Philippine Peso',
+    'PLN': u'Polish Złoty',
     'QAR': 'Qatar riyal',
     'SEK': 'Swedish Krone',
     'SGD': 'Singapore Dollar',
