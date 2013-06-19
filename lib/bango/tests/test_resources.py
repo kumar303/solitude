@@ -519,7 +519,16 @@ class TestCreateBillingConfiguration(SellerProductBangoBase):
         res = self.client.post(self.list_url, data=data)
         data = json.loads(res.content)
         tr = Transaction.objects.get(uid_pay=data['billingConfigurationId'])
-        assert tr is not self.transaction
+        assert tr.pk != self.transaction.pk
+
+    def test_update_trans_status_if_existing(self):
+        data = self.good()
+        self.transaction.status = constants.STATUS_PENDING
+        self.transaction.save()
+        res = self.client.post(self.list_url, data=data)
+        data = json.loads(res.content)
+        tr = Transaction.objects.get(uid_pay=data['billingConfigurationId'])
+        eq_(tr.pk, self.transaction.pk)
 
     def test_changed(self):
         res = self.client.post(self.list_url, data=self.good())

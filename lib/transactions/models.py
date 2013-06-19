@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.transaction import commit_on_success
 from django.dispatch import receiver
 
 from django_statsd.clients import statsd
@@ -129,19 +130,32 @@ def create_bango_transaction(sender, **kwargs):
     data = kwargs['data']
     form = kwargs['form']
     seller_product = form.cleaned_data['seller_product_bango'].seller_product
+    provider = constants.SOURCE_BANGO
 
-    transaction, c = Transaction.objects.safer_get_or_create(
-        uuid=data['transaction_uuid'],
-        status=constants.STATUS_RECEIVED,
-        provider=constants.SOURCE_BANGO,
-        seller_product=seller_product)
-    transaction.source = data.get('source', '')
-    # uid_support will be set with the transaction id.
-    # uid_pay is the uid of the billingConfiguration request.
-    transaction.uid_pay = bundle['billingConfigurationId']
-    transaction.status = constants.STATUS_PENDING
-    transaction.type = constants.TYPE_PAYMENT
-    transaction.save()
+    with commit_on_success():
+        try:
+            transaction = Transaction.objects.get(
+                                uuid=data['transaction_uuid'])
+            log.info('about to update transaction {0.uuid} '
+                     'provider={0.provider} uid_pay={0.uid_pay} '
+                     'seller_product={0.seller_product} '
+                     'status={0.status} type={0.type} '
+                     'source={0.source}'.format(transaction))
+            transaction.seller_product = seller_product
+            transaction.provider = provider
+        except Transaction.DoesNotExist:
+            transaction = Transaction.objects.create(
+                                uuid=data['transaction_uuid'],
+                                seller_product=seller_product,
+                                provider=provider)
+
+        transaction.source = data.get('source', '')
+        # uid_support will be set with the transaction id.
+        # uid_pay is the uid of the billingConfiguration request.
+        transaction.uid_pay = bundle['billingConfigurationId']
+        transaction.status = constants.STATUS_PENDING
+        transaction.type = constants.TYPE_PAYMENT
+        transaction.save()
 
     log.info('Bango transaction: %s pending' % (transaction.pk,))
 
