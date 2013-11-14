@@ -45,6 +45,7 @@ services_patterns = patterns('lib.services.resources',
         name='services.failures.statuses'),
 )
 
+
 urlpatterns = patterns('',
     url(r'^proxy/', include('lib.proxy.urls')),
     url(r'^', include(api.urls)),
@@ -54,7 +55,8 @@ urlpatterns = patterns('',
     url(r'^zippy/', include('lib.zippy.urls')),
     url(r'^', include(delayable.urls)),
     url(r'^$', 'solitude.views.home', name='home'),
-    url(r'^services/', include(services_patterns))
+    url(r'^provider/', include('lib.provider.urls')),
+    url(r'^services/', include(services_patterns)),
 )
 
 handler500 = 'solitude.views.error'
