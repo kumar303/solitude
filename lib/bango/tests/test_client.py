@@ -128,5 +128,3 @@ def test_callable():
 
 def test_request():
     eq_(get_request('foo'), 'fooRequest')
-    eq_(get_request('CreateBillingConfiguration'),
-        'InnerCreateBillingConfigurationRequest')

@@ -56,10 +56,16 @@ token_checker = [
 # Status codes from the proxy that raise an error and stop processing.
 FATAL_PROXY_STATUS_CODES = (404, 500,)
 
+
+# If we ever need to re-map a call, add the method here. Example:
+#    'request': {
+#        'CreateBillingConfiguration':
+#                               'InnerCreateBillingConfigurationRequest',
+#    }
+# See bug 937701, bug 958465
+
 name_map = {
-    'request': {
-        'CreateBillingConfiguration': 'InnerCreateBillingConfigurationRequest',
-    }
+    'request': {}
 }
 
 
